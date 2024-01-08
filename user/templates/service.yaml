@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.user.service }}
+  labels:
+    {{- include "app-backend.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.containerPort }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.name }}
+    - port: {{ .Values.service.GrpcPort }}
+      targetPort: {{ .Values.service.GrpcContainerPort }}
+      protocol: {{ .Values.service.GrpcProtocol }}
+      name: {{ .Values.service.GrpcName }}
+  selector:
+    {{- include "app-backend.selectorLabels" . | nindent 4 }}

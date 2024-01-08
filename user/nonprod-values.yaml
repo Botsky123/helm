@@ -1,0 +1,138 @@
+
+replicaCount: 1
+
+image:
+  repository: 
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: 
+  - name: regcred
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "user"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 3002
+  containerPort: 3002
+  protocol: TCP
+  name: http
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: 
+      paths:
+      - path: /
+        backend:
+          serviceName: app-backend 
+          servicePort: 4000
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 350m
+    memory: 300Mi
+  requests:
+    cpu: 150m
+    memory: 200Mi
+  
+ports:
+  - name: http
+    containerPort: 3002
+    protocol: TCP
+livenessProbe: 
+  failureThreshold: 3
+  httpGet:
+    path: /api/user/healthcheck
+    port: 3002
+    scheme: HTTP
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+readinessProbe: 
+  failureThreshold: 3
+  httpGet:
+    path: /api/user/healthcheck
+    port: 3002
+    scheme: HTTP
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector:
+  key: value
+
+tolerations: []
+
+affinity: {}
+envConfigmap:
+  name: name
+environments:
+  - name: test
+    value: test
+    valueFrom: 
+      secretKeyRef:
+        name: test
+        key: test
+user:
+  service: user
+  port: 3000
+  
+mongodb:
+  enabled: true
+  auth:
+    enabled: true
+    rootPassword: ""
+    usernames: 
+      - ""
+    databases: 
+      - ""
+    passwords: 
+      - ""
+  nodeSelector:
+    key: value
+  resources:
+    limits:
+      cpu: 300m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi  
